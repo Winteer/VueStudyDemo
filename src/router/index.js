@@ -7,7 +7,9 @@ import pageQuiList from '../pages/pageQuiList.vue'
 import pageQuiNav from '../pages/pageQuiNav.vue'
 //table
 import vueTable from '../pages/vueTable.vue'
-
+import vueForm from '../pages/vueForm.vue'
+import editForm from '../pages/editForm.vue'
+import pagination from '../pages/pagination.vue'
 
 Vue.use(Router)
 
@@ -37,6 +39,21 @@ export default new Router({
       path: '/tab',
       name: 'tab',
       component: vueTable
+    },
+     {
+      path: '/form',
+      name: 'form',
+      component: vueForm
+    },
+     {
+      path: '/editForm',
+      name: 'editForm',
+      component: editForm
+    },
+     {
+      path: '/pagination',
+      name: 'pagination',
+      component: pagination
     }
   ]
 })

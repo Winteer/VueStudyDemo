@@ -1,38 +1,70 @@
 <template>
-  <el-table :data="tableData" style="width: 100%">
-    <!-- <button @click="selectDemo">点击请求</button> -->
-    <el-table-column label="姓名" width="180">
-      <template slot-scope="scope">
-        <span style="margin-left: 10px">{{ scope.row.name }}</span>
-      </template>
-    </el-table-column>
-    <el-table-column label="地址" width="180">
-      <template slot-scope="scope">
-        <span style="margin-left: 10px">{{ scope.row.address }}</span>
-      </template>
-    </el-table-column>
-    <el-table-column label="日期" width="180">
-      <template slot-scope="scope">
-        <i class="el-icon-time"></i>
-        <span style="margin-left: 10px">{{ scope.row.date }}</span>
-      </template>
-    </el-table-column>
-    <el-table-column label="操作">
-      <template slot-scope="scope">
-        <el-button size="mini" type="danger" icon="el-icon-delete" @click="handleDelete(scope.row.id)">删除</el-button>
-        <el-popover placement="right" width="400" trigger="click">
-          <el-table :data="gridData">
-            <el-table-column width="150" property="date" label="日期"></el-table-column>
-            <el-table-column width="100" property="name" label="姓名"></el-table-column>
-            <el-table-column width="300" property="address" label="地址"></el-table-column>
-          </el-table>
-          <el-button slot="reference">修改</el-button>
-        </el-popover>
-      </template>
-    </el-table-column>
-  </el-table>
+  <div id="vueTable">
+    <!-- Form -->
+    <el-button type="button" @click="initForm(),dialogFormVisible = true">增加信息</el-button>
+    <el-dialog title="新增" :visible.sync="dialogFormVisible">
+      <el-form ref="form" :model="form" label-width="80px">
+        <el-form-item label="名称">
+          <el-input v-model="form.name"></el-input>
+        </el-form-item>
+        <el-form-item label="地址">
+          <el-input v-model="form.address"></el-input>
+        </el-form-item>
+        <el-form-item label="性别">
+          <el-input v-model="form.sex"></el-input>
+        </el-form-item>
+        <el-form-item>
+          <!-- <el-button type="primary" @click="onSubmit(form.name,form.address,form.sex)">立即创建</el-button> -->
+          <el-button type="primary" @click="onSubmit(form),dialogFormVisible = false">立即创建</el-button>
+          <el-button @click="dialogFormVisible = false">取消</el-button>
+        </el-form-item>
+      </el-form>
+    </el-dialog>
+    <el-table :data="tableData" stripe=true border style="width: 100%">
+      <!-- <button @click="selectDemo">点击请求</button> -->
+      <el-table-column label="姓名" width="180">
+        <template slot-scope="scope">
+          <span style="margin-left: 10px">{{ scope.row.name }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="地址" width="180">
+        <template slot-scope="scope">
+          <span style="margin-left: 10px">{{ scope.row.address }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="日期" width="180">
+        <template slot-scope="scope">
+          <i class="el-icon-time"></i>
+          <span style="margin-left: 10px">{{ scope.row.date }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="操作">
+        <template slot-scope="scope">
+          <el-button size="mini" type="danger" icon="el-icon-delete" @click="handleDelete(scope.row.id)">删除</el-button>
+            <el-dialog title="新增" :visible.sync="modifyDialogFormVisible">
+              <el-form ref="form" :model="form" label-width="80px">
+                <el-form-item label="名称">
+                  <el-input v-model="form.name"></el-input>
+                </el-form-item>
+                <el-form-item label="地址">
+                  <el-input v-model="form.address"></el-input>
+                </el-form-item>
+                <el-form-item label="性别">
+                  <el-input v-model="form.sex"></el-input>
+                </el-form-item>
+                <el-form-item>
+                  <!-- <el-button type="primary" @click="onSubmit(form.name,form.address,form.sex)">立即创建</el-button> -->
+                  <el-button type="primary" @click="modifyForm(form),modifyDialogFormVisible = false">立即修改</el-button>
+                  <el-button @click="modifyDialogFormVisible = false">取消</el-button>
+                </el-form-item>
+              </el-form>
+            </el-dialog>
+            <el-button slot="reference" icon="el-icon-edit" @click="getForm(scope.row.id),modifyDialogFormVisible = true">修改</el-button>
+        </template>
+      </el-table-column>
+    </el-table>
+  </div>
 </template>
-
 <script>
   export default {
       data:function() {
@@ -43,29 +75,68 @@
             name: '',
             address: ''
           }],
-          gridData: [{
-          date: '2016-05-02',
-          name: '王小虎',
-          address: '上海市普陀区金沙江路 1518 弄'
-        }, {
-          date: '2016-05-04',
-          name: '王小虎',
-          address: '上海市普陀区金沙江路 1518 弄'
-        }, {
-          date: '2016-05-01',
-          name: '王小虎',
-          address: '上海市普陀区金沙江路 1518 弄'
-        }, {
-          date: '2016-05-03',
-          name: '王小虎',
-          address: '上海市普陀区金沙江路 1518 弄'
-        }]
+           form: {
+            id: 0,
+          name: '',
+          address: '',
+          sex: ''
+        },
+        modifFlag:'',
+        dialogTableVisible: false,
+        modifyDialogFormVisible: false,//修改表单是否可见标志
+        dialogFormVisible: false,
+        formLabelWidth: '120px'
         }
       },
       mounted:function(){
         this.selectDemo();
       },
       methods: {
+        //每次添加完之后清空form，防止下次点击添加时，数据残留
+        initForm:function(){
+          this.form.id=0;
+          this.form.name='';
+          this.form.address='';
+          this.form.sex='';
+        },
+        //根据id获取当前行的信息
+        getForm:function(id){
+            var params = new URLSearchParams();
+            params.append('id', id); 
+            this.$axios({
+              url:'http://127.0.0.1:8000/api/persons/getInfoByID',
+              method:'post',
+              data:params
+          })
+          .then((response) => {
+              this.form = response.data;
+          }).catch(function (response) {
+                console.log(response)
+            });
+        },
+        //根据前台获取的信息修改后台对应的信息
+        modifyForm:function(form){
+          var params = new URLSearchParams();
+              params.append('id', form.id); 
+              params.append('name', form.name); 
+              params.append('address', form.address); 
+              params.append('sex', form.sex); 
+              this.$axios({
+                            url:'http://127.0.0.1:8000/api/persons/updateForm',
+                            method:'post',
+                            data:params
+                        })
+                        .then((response) => {
+                            this.modifFlag = response.data;
+                            if(this.modifFlag > 0){
+                               this.selectDemo();
+                               this.$message('修改成功！');
+                            }
+                            console.log(response.data);
+                        }).catch(function (response) {
+                        console.log(response)
+                    });
+        },
             selectDemo: function () {
                      this.$axios({
                             url:'http://127.0.0.1:8000/api/persons/getAllInfo',
@@ -131,11 +202,33 @@
                     message: '已取消删除'
                   });          
                 });
-            }
+            },
+        onSubmit(form) {
+        var flag = -1;
+         var params = new URLSearchParams();
+              params.append('name', form.name); 
+              params.append('address', form.address); 
+              params.append('sex', form.sex); 
+        this.$axios({
+                            url:'http://127.0.0.1:8000/api/persons/insertPerson',
+                            method:'post',
+                            data:params
+                        })
+                        .then((response) => {
+                          flag=response.data;
+                          if(flag > 0){
+                            this.$message('插入成功！');
+                          }else{
+                            this.$message('插入失败！');
+                          }
+                          this.selectDemo();
+                        }).catch(function (response) {
+                    });
+      }
         }
     }
   </script>
 <style type="text/css">
-@import url("//unpkg.com/element-ui@2.9.2/lib/theme-chalk/index.css");
-
+/*@import url("//unpkg.com/element-ui@2.9.2/lib/theme-chalk/index.css");*/
+@import url("//unpkg.com/element-ui@2.11.0/lib/theme-chalk/index.css");
 </style>
