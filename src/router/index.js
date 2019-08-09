@@ -10,6 +10,8 @@ import vueTable from '../pages/vueTable.vue'
 import vueForm from '../pages/vueForm.vue'
 import editForm from '../pages/editForm.vue'
 import pagination from '../pages/pagination.vue'
+import vueContainer from '../pages/vueContainer.vue'
+import vueday01 from '../vueStudy/vueday01.vue'
 
 Vue.use(Router)
 
@@ -54,6 +56,16 @@ export default new Router({
       path: '/pagination',
       name: 'pagination',
       component: pagination
+    },
+     {
+      path: '/vueContainer',
+      name: 'vueContainer',
+      component: vueContainer
+    },
+     {
+      path: '/vueday01',
+      name: 'vueday01',
+      component: vueday01
     }
   ]
 })

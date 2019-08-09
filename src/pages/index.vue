@@ -36,6 +36,16 @@
           <a class="page-link" href="#/pagination">分页</a>
         </p>
       </div>
+      <div class="img-box">
+        <p class="img-item">
+          <a class="page-link" href="#/vueContainer">布局容器</a>
+        </p>
+      </div>
+       <div class="img-box">
+        <p class="img-item">
+          <a class="page-link" href="#/vueday01">test</a>
+        </p>
+      </div>
     </div>
   </div>
 </template>

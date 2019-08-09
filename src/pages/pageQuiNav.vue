@@ -2,6 +2,7 @@
   <div id="pageQuiNav">
     <qui-nav v-on:navClickEvent="dosth"></qui-nav>
   </div>
+
 </template>
 
 <script>

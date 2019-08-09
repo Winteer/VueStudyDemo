@@ -1,6 +1,8 @@
 <template>
   <div id="vueTable">
     <!-- Form -->
+     <el-container style="height: 100%; border: 1px solid #eee">
+        <el-header style="text-align: left; font-size: 12px">
     <el-button type="button" @click="initForm(),dialogFormVisible = true">增加信息</el-button>
     <el-dialog title="新增" :visible.sync="dialogFormVisible">
       <el-form ref="form" :model="form" label-width="80px">
@@ -20,8 +22,12 @@
         </el-form-item>
       </el-form>
     </el-dialog>
+  </el-header>
+ <el-main>
     <el-table :data="tableData" stripe=true border style="width: 100%">
       <!-- <button @click="selectDemo">点击请求</button> -->
+      <el-table-column label="序号" type="index" width="60"></el-table-column>
+
       <el-table-column label="姓名" width="180">
         <template slot-scope="scope">
           <span style="margin-left: 10px">{{ scope.row.name }}</span>
@@ -38,7 +44,7 @@
           <span style="margin-left: 10px">{{ scope.row.date }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="操作">
+      <el-table-column label="操作" width="280">
         <template slot-scope="scope">
           <el-button size="mini" type="danger" icon="el-icon-delete" @click="handleDelete(scope.row.id)">删除</el-button>
             <el-dialog title="新增" :visible.sync="modifyDialogFormVisible">
@@ -63,6 +69,19 @@
         </template>
       </el-table-column>
     </el-table>
+  </el-main>
+  <el-footer >
+       <el-pagination
+      @size-change="handleSizeChange"
+      @current-change="handleCurrentChange"
+      :current-page="currentPage"
+      :page-sizes="[5, 10, 50, 100]"
+      :page-size="pageSize"
+      layout="total, sizes, prev, pager, next, jumper"
+      :total="totalNum">
+    </el-pagination>
+  </el-footer>
+  </el-container>
   </div>
 </template>
 <script>
@@ -81,6 +100,10 @@
           address: '',
           sex: ''
         },
+        searchWord:'',//搜索字段
+        currentPage: 1,//当前页
+        pageSize:5,//页面大小
+        totalNum:200,//总记录数
         modifFlag:'',
         dialogTableVisible: false,
         modifyDialogFormVisible: false,//修改表单是否可见标志
@@ -89,7 +112,8 @@
         }
       },
       mounted:function(){
-        this.selectDemo();
+        this.getCount(this.searchWord);
+        this.getInfoByPage(this.searchWord,this.currentPage,this.pageSize);
       },
       methods: {
         //每次添加完之后清空form，防止下次点击添加时，数据残留
@@ -149,6 +173,37 @@
                         console.log(response)
                     });
             },
+            getCount:function(searchWord){//获取总记录数
+              var params = new URLSearchParams();
+              params.append('searchWord', searchWord); 
+                this.$axios({
+                            url:'http://127.0.0.1:8000/api/persons/getCount',
+                            method:'post'
+                        })
+                        .then((response) => {
+                            this.totalNum = response.data;
+                            console.log(response.data);
+                        }).catch(function (response) {
+                        console.log(response)
+                    });
+            },
+             getInfoByPage:function(searchWord,currentPage,pageSize) {
+              var params = new URLSearchParams();
+              params.append('searchWord', searchWord); 
+              params.append('pageNum', currentPage); 
+              params.append('pageSize', pageSize); 
+                  this.$axios({
+                            url:'http://127.0.0.1:8000/api/persons/getInfoByPage',
+                            method:'post',
+                            data:params
+                        })
+                        .then((response) => {
+                            this.tableData = response.data;
+                            console.log(response.data);
+                        }).catch(function (response) {
+                        console.log(response)
+                    });
+              },
             handleEdit:function(index, row) {
                 console.log(index, row);
               },
@@ -224,11 +279,26 @@
                           this.selectDemo();
                         }).catch(function (response) {
                     });
-      }
+      },
+      //分页
+      handleSizeChange(val) {
+        this.pageSize=val;
+         this.getInfoByPage(this.searchWord,this.currentPage,this.pageSize);
+        console.log(`每页 ${val} 条`);
+      },
+      handleCurrentChange(val) {
+        this.currentPage=val;
+         this.getInfoByPage(this.searchWord,this.currentPage,this.pageSize);
+        console.log(`当前页: ${val}`);
+      } 
         }
     }
   </script>
 <style type="text/css">
-/*@import url("//unpkg.com/element-ui@2.9.2/lib/theme-chalk/index.css");*/
 @import url("//unpkg.com/element-ui@2.11.0/lib/theme-chalk/index.css");
+.el-header {
+  background-color: #B3C0D1;
+  color: #333;
+  line-height: 60px;
+}
 </style>
