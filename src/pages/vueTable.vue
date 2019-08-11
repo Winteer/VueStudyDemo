@@ -33,6 +33,11 @@
           <span style="margin-left: 10px">{{ scope.row.name }}</span>
         </template>
       </el-table-column>
+      <el-table-column label="性别" width="180">
+        <template slot-scope="scope">
+          <span style="margin-left: 10px">{{ scope.row.sex }}</span>
+        </template>
+      </el-table-column>
       <el-table-column label="地址" width="180">
         <template slot-scope="scope">
           <span style="margin-left: 10px">{{ scope.row.address }}</span>
@@ -112,7 +117,7 @@
         }
       },
       mounted:function(){
-        this.getCount(this.searchWord);
+        // this.getCount(this.searchWord);
         this.getInfoByPage(this.searchWord,this.currentPage,this.pageSize);
       },
       methods: {
@@ -153,7 +158,8 @@
                         .then((response) => {
                             this.modifFlag = response.data;
                             if(this.modifFlag > 0){
-                               this.selectDemo();
+                              this.getInfoByPage(this.searchWord,this.currentPage,this.pageSize);
+                               // this.selectDemo();
                                this.$message('修改成功！');
                             }
                             console.log(response.data);
@@ -188,6 +194,7 @@
                     });
             },
              getInfoByPage:function(searchWord,currentPage,pageSize) {
+               this.getCount(this.searchWord);
               var params = new URLSearchParams();
               params.append('searchWord', searchWord); 
               params.append('pageNum', currentPage); 
@@ -235,7 +242,8 @@
                         })
                         .then((response) => {
                           // this.open();
-                          this.selectDemo();
+                          // this.selectDemo();
+                          this.getInfoByPage(this.searchWord,this.currentPage,this.pageSize);
                             console.log(response.data);
                         }).catch(function (response) {
                         console.log(response)
@@ -276,7 +284,7 @@
                           }else{
                             this.$message('插入失败！');
                           }
-                          this.selectDemo();
+                         this.getInfoByPage(this.searchWord,this.currentPage,this.pageSize);
                         }).catch(function (response) {
                     });
       },
